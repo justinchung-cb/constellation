@@ -17,6 +17,7 @@ import { BlockPulse } from "./BlockPulse";
 import { Nebula } from "./Nebula";
 import { StarBirth } from "./StarBirth";
 import { StarDeath } from "./StarDeath";
+import { FlowArrows } from "./FlowArrows";
 import { StarField } from "./StarField";
 
 const PLANET_GEO = (() => {
@@ -869,6 +870,7 @@ export function GalaxyScene({ introPhase = "ready" }: { introPhase?: "intro" | "
         ))}
 
         <ConstellationLines />
+        <FlowArrows />
       </group>
 
       <EffectComposer multisampling={0}>

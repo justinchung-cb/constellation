@@ -11,6 +11,43 @@ import { formatEth, formatNumber, formatTokenBalance, truncateAddress } from "@/
 
 const VISIBLE_LIMIT = 5;
 
+function InfoTip({ text }: { text: string }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div
+      className="relative inline-flex"
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
+    >
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        className="text-secondary cursor-help"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="16" x2="12" y2="12" />
+        <line x1="12" y1="8" x2="12.01" y2="8" />
+      </svg>
+      {show && (
+        <div
+          className="absolute right-0 top-6 w-max max-w-48 px-2.5 py-1.5 rounded-lg text-[11px] text-white/80 leading-snug pointer-events-none z-50"
+          style={{
+            background: "rgba(10, 10, 30, 0.95)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            boxShadow: "0 4px 16px rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          {text}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function WalletDetail({ address }: { address: string }) {
   const { wallets, transactions, selectWallet, selectContract, selectTransaction, removeWallet, clearSelection, isLoading } = useGalaxyStore();
   const { address: connectedAddress } = useAccount();
@@ -129,11 +166,14 @@ export function WalletDetail({ address }: { address: string }) {
             border: "1px solid rgba(0, 82, 255, 0.15)",
           }}
         >
-          <div className="flex items-center gap-2">
-            <span style={{ color: "#FFFFFF", fontSize: "14px" }}>&#9733;</span>
-            <span className="text-sm font-medium" style={{ color: "#FFFFFF" }}>
-              {registration.name}
-            </span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span style={{ color: "#FFFFFF", fontSize: "14px" }}>&#9733;</span>
+              <span className="text-sm font-medium" style={{ color: "#FFFFFF" }}>
+                {registration.name}
+              </span>
+            </div>
+            <InfoTip text="Arrows show the flow of ETH between you and connected wallets. Thicker arrows mean larger amounts." />
           </div>
           <div className="flex items-center gap-2">
             <div

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAccount } from "wagmi";
 import { useGalaxyStore } from "@/hooks/useGalaxyStore";
 import { WalletDetail } from "./WalletDetail";
 import { ContractDetail } from "./ContractDetail";
@@ -17,7 +18,10 @@ const TYPE_LABELS = {
 
 export function DetailPanel() {
   const { selectedEntity, clearSelection } = useGalaxyStore();
+  const { address: connectedAddress } = useAccount();
   const [showFocusTip, setShowFocusTip] = useState(false);
+  const isOwnWallet = selectedEntity?.type === "wallet" &&
+    connectedAddress?.toLowerCase() === selectedEntity.id.toLowerCase();
 
   return (
     <AnimatePresence>
@@ -38,7 +42,7 @@ export function DetailPanel() {
         >
           <div className="flex items-center justify-between p-4 border-b border-border">
             <h2 className="text-sm font-medium text-secondary uppercase tracking-wider">
-              {TYPE_LABELS[selectedEntity.type]}
+              {isOwnWallet ? "Your Wallet" : TYPE_LABELS[selectedEntity.type]}
             </h2>
             <div className="flex items-center gap-2">
               {selectedEntity.type === "wallet" && (
