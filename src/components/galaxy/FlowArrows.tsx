@@ -15,15 +15,42 @@ export function FlowArrows() {
   const { transactions, wallets, contractCreations, clusteredPositions, selectedEntity } =
     useGalaxyStore();
 
-  const selectedAddr =
-    selectedEntity?.type === "wallet" || selectedEntity?.type === "contract"
-      ? selectedEntity.id
-      : null;
-
   const arrows = useMemo(() => {
+    type Arrow = {
+      key: string;
+      from: [number, number, number];
+      to: [number, number, number];
+      width: number;
+    };
+
+    const getPos = (addr: string): [number, number, number] | undefined =>
+      clusteredPositions.get(addr) ??
+      (addr.startsWith("contract:")
+        ? contractCreations.get(addr.slice(9))?.position
+        : wallets.get(addr)?.position);
+
+    // --- Single transaction selected: show only that arrow ---
+    if (selectedEntity?.type === "transaction") {
+      const tx = transactions.find((t) => t.hash === selectedEntity.id);
+      if (!tx) return [];
+      const fromPos = getPos(tx.from);
+      const toPos = getPos(tx.to);
+      if (!fromPos || !toPos) return [];
+      return [{
+        key: `tx-${tx.hash}`,
+        from: fromPos,
+        to: toPos,
+        width: (MIN_WIDTH + MAX_WIDTH) / 2,
+      }] as Arrow[];
+    }
+
+    // --- Wallet/contract selected: aggregate all txs per counterparty ---
+    const selectedAddr =
+      (selectedEntity?.type === "wallet" || selectedEntity?.type === "contract")
+        ? selectedEntity.id
+        : null;
     if (!selectedAddr) return [];
 
-    // Aggregate per counterparty: total value and tx count for sent/received
     const agg = new Map<
       string,
       { sentVal: bigint; recvVal: bigint; sentCount: number; recvCount: number }
@@ -44,7 +71,6 @@ export function FlowArrows() {
 
     if (agg.size === 0) return [];
 
-    // Check if any tx has non-zero value — if not, fall back to tx count for sizing
     let hasValue = false;
     let maxVal = BigInt(0);
     let maxCount = 0;
@@ -56,26 +82,15 @@ export function FlowArrows() {
       if (recvCount > maxCount) maxCount = recvCount;
     }
 
-    const selectedPos =
-      clusteredPositions.get(selectedAddr) ?? wallets.get(selectedAddr)?.position;
+    const selectedPos = getPos(selectedAddr);
     if (!selectedPos) return [];
 
-    const result: {
-      key: string;
-      from: [number, number, number];
-      to: [number, number, number];
-      width: number;
-    }[] = [];
+    const result: Arrow[] = [];
 
     for (const [counterparty, { sentVal, recvVal, sentCount, recvCount }] of agg) {
-      const cpPos =
-        clusteredPositions.get(counterparty) ??
-        (counterparty.startsWith("contract:")
-          ? contractCreations.get(counterparty.slice(9))?.position
-          : wallets.get(counterparty)?.position);
+      const cpPos = getPos(counterparty);
       if (!cpPos) continue;
 
-      // Sent arrow: selectedAddr -> counterparty
       if (sentCount > 0) {
         const ratio = hasValue && maxVal > BigInt(0)
           ? Number(sentVal) / Number(maxVal)
@@ -84,7 +99,6 @@ export function FlowArrows() {
         result.push({ key: `sent-${counterparty}`, from: selectedPos, to: cpPos, width });
       }
 
-      // Received arrow: counterparty -> selectedAddr
       if (recvCount > 0) {
         const ratio = hasValue && maxVal > BigInt(0)
           ? Number(recvVal) / Number(maxVal)
@@ -95,7 +109,7 @@ export function FlowArrows() {
     }
 
     return result;
-  }, [selectedAddr, transactions, wallets, contractCreations, clusteredPositions]);
+  }, [selectedEntity, transactions, wallets, contractCreations, clusteredPositions]);
 
   if (arrows.length === 0) return null;
 
@@ -164,7 +178,7 @@ function FlowArrow({
   useFrame(() => {
     if (matRef.current) {
       const t = performance.now() * 0.001;
-      matRef.current.opacity = 0.2 + Math.sin(t * 2) * 0.04;
+      matRef.current.opacity = 0.45 + Math.sin(t * 2) * 0.05;
     }
   });
 
@@ -177,9 +191,9 @@ function FlowArrow({
         <cylinderGeometry args={[width * 0.5, width * 0.5, shaftLen, 8, 1]} />
         <meshBasicMaterial
           ref={matRef}
-          color="#0052FF"
+          color="#ffffff"
           transparent
-          opacity={0.2}
+          opacity={0.45}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
           toneMapped={false}
@@ -192,9 +206,9 @@ function FlowArrow({
           args={[width * ARROW_HEAD_EXTRA * 0.5, headSize, 8]}
         />
         <meshBasicMaterial
-          color="#0052FF"
+          color="#ffffff"
           transparent
-          opacity={0.28}
+          opacity={0.55}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
           toneMapped={false}
