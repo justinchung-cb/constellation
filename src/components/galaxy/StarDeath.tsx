@@ -5,9 +5,9 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 const DEATH_DURATION = 1.2;
-const PARTICLE_COUNT = 100;
-const SHOCKWAVE_GEO = new THREE.RingGeometry(0.92, 1, 64);
-const FLASH_GEO = new THREE.SphereGeometry(1, 16, 16);
+const PARTICLE_COUNT = 50;
+const SHOCKWAVE_GEO = new THREE.RingGeometry(0.92, 1, 32);
+const FLASH_GEO = new THREE.SphereGeometry(1, 8, 8);
 
 const DEATH_VERTEX = /* glsl */ `
   attribute float aSize;

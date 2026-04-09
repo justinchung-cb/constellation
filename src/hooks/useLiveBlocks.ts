@@ -128,7 +128,7 @@ export function useLiveBlocks() {
     includeTransactions: true,
     emitMissed: true,
     emitOnBegin: true,
-    pollingInterval: 4_000,
+    pollingInterval: 8_000,
     onBlock: (block) => {
       if (errorCount.current > 0) {
         errorCount.current = 0;

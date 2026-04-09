@@ -4,7 +4,7 @@ import React, { memo, useCallback, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-const PARTICLE_COUNT = 120;
+const PARTICLE_COUNT = 60;
 
 const NEBULA_VERTEX = /* glsl */ `
   uniform float uTime;
@@ -52,8 +52,8 @@ const NEBULA_FRAGMENT = /* glsl */ `
   }
 `;
 
-const GLOW_GEO = new THREE.SphereGeometry(1, 12, 12);
-const CORE_GEO = new THREE.SphereGeometry(1, 10, 10);
+const GLOW_GEO = new THREE.SphereGeometry(1, 8, 8);
+const CORE_GEO = new THREE.SphereGeometry(1, 6, 6);
 const HIT_GEO = new THREE.SphereGeometry(1, 6, 6);
 const HIT_MAT = new THREE.MeshBasicMaterial({ visible: false });
 

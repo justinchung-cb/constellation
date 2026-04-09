@@ -6,8 +6,8 @@ import * as THREE from "three";
 
 const PULSE_DURATION = 3.0;
 const PARTICLE_COUNT = 60;
-const SHOCKWAVE_GEO = new THREE.RingGeometry(0.92, 1, 64);
-const FLASH_GEO = new THREE.SphereGeometry(1, 16, 16);
+const SHOCKWAVE_GEO = new THREE.RingGeometry(0.92, 1, 32);
+const FLASH_GEO = new THREE.SphereGeometry(1, 8, 8);
 
 const EXPLOSION_VERTEX = /* glsl */ `
   attribute float aSize;

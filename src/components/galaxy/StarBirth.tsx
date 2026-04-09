@@ -5,9 +5,9 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 const BIRTH_EFFECT_DURATION = 1.0;
-const PARTICLE_COUNT = 40;
-const SHOCKWAVE_GEO = new THREE.RingGeometry(0.92, 1, 64);
-const FLASH_GEO = new THREE.SphereGeometry(1, 16, 16);
+const PARTICLE_COUNT = 24;
+const SHOCKWAVE_GEO = new THREE.RingGeometry(0.92, 1, 32);
+const FLASH_GEO = new THREE.SphereGeometry(1, 8, 8);
 
 const BIRTH_VERTEX = /* glsl */ `
   attribute float aSize;

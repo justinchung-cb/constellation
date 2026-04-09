@@ -162,7 +162,8 @@ export function GalaxyCanvas() {
       <div style={{ position: "fixed", inset: 0, zIndex: 0, background: "#0a0a1a" }}>
         <Canvas
           camera={{ position: [0, 7, 0], fov: 60, near: 0.1, far: 1000 }}
-          gl={{ antialias: true, alpha: false, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.2 }}
+          dpr={[1, 1.5]}
+          gl={{ antialias: false, alpha: false, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.2 }}
           style={{ width: "100%", height: "100%" }}
         >
           <color attach="background" args={["#0a0a1a"]} />

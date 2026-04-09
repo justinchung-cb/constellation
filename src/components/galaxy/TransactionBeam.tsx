@@ -8,14 +8,14 @@ const BEAM_DURATION = 2.2;
 const TRAIL_COUNT = 8;
 const SPARKLE_COUNT = 4;
 
-const CORE_GEO = new THREE.SphereGeometry(0.1, 10, 10);
-const GLOW_GEO = new THREE.SphereGeometry(0.28, 8, 8);
-const HAZE_GEO = new THREE.SphereGeometry(0.65, 6, 6);
-const TRAIL_GEO = new THREE.SphereGeometry(1, 6, 6);
-const SPARKLE_GEO = new THREE.SphereGeometry(0.035, 4, 4);
-const RING_GEO = new THREE.RingGeometry(0.3, 0.55, 24);
-const RING2_GEO = new THREE.RingGeometry(0.2, 0.4, 24);
-const FLASH_GEO = new THREE.SphereGeometry(0.25, 8, 8);
+const CORE_GEO = new THREE.SphereGeometry(0.1, 6, 6);
+const GLOW_GEO = new THREE.SphereGeometry(0.28, 6, 6);
+const HAZE_GEO = new THREE.SphereGeometry(0.65, 4, 4);
+const TRAIL_GEO = new THREE.SphereGeometry(1, 4, 4);
+const SPARKLE_GEO = new THREE.SphereGeometry(0.035, 3, 3);
+const RING_GEO = new THREE.RingGeometry(0.3, 0.55, 16);
+const RING2_GEO = new THREE.RingGeometry(0.2, 0.4, 16);
+const FLASH_GEO = new THREE.SphereGeometry(0.25, 6, 6);
 
 const _tempVec = new THREE.Vector3();
 

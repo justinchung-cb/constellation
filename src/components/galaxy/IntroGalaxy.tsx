@@ -4,7 +4,7 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-const PARTICLE_COUNT = 200_000;
+const PARTICLE_COUNT = 100_000;
 const BRANCHES = 3;
 const RADIUS = 5;
 const RANDOMNESS = 0.2;
