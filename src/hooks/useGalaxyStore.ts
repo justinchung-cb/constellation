@@ -38,6 +38,7 @@ export interface GalaxyStore {
   addTransactions: (txs: TransactionEdge[]) => void;
   addLiveTransaction: (tx: TransactionEdge) => void;
   promoteLiveTransaction: (hash: string) => void;
+  setWalletRegistration: (address: string, registration: import("@/types").StarRegistration) => void;
   setLoading: (loading: boolean) => void;
   setLiveMode: (live: boolean) => void;
   setLatestBlock: (block: number) => void;

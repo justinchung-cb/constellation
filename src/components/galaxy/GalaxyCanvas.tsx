@@ -14,6 +14,7 @@ import { DetailPanel } from "@/components/ui/DetailPanel";
 import { StatusBar } from "@/components/ui/StatusBar";
 import { ActivityLog } from "@/components/ui/ActivityLog";
 import { LiveBlocksWatcher } from "./LiveBlocksWatcher";
+import { StarRegistryLoader } from "./StarRegistryLoader";
 
 export type IntroPhase = "intro" | "zooming" | "whiteout" | "ready";
 
@@ -154,6 +155,7 @@ export function GalaxyCanvas() {
   return (
     <GalaxyProvider>
       <LiveBlocksWatcher />
+      <StarRegistryLoader />
 
       {/* 3D Layer */}
       <div style={{ position: "fixed", inset: 0, zIndex: 0, background: "#0a0a1a" }}>

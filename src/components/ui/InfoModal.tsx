@@ -86,35 +86,35 @@ export function InfoModal() {
 
               <div className="space-y-2">
                 <div className="flex items-start gap-2">
-                  <span className="text-white mt-0.5">&#9679;</span>
+                  <span className="w-4 shrink-0 text-center text-white mt-0.5">&#9679;</span>
                   <p>
                     <span className="text-white">Stars</span> are wallets. Larger
                     stars have higher ETH balances.
                   </p>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="text-white mt-0.5">&#8212;</span>
+                  <span className="w-4 shrink-0 text-center text-white mt-0.5">&#8212;</span>
                   <p>
                     <span className="text-white">Lines</span> between stars show
                     transaction connections between wallets.
                   </p>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="text-purple-400 mt-0.5">&#10043;</span>
+                  <span className="w-4 shrink-0 text-center text-purple-400 mt-0.5">&#10043;</span>
                   <p>
-                    <span className="text-purple-400">Nebulae</span> represent
+                    <span className="text-purple-400">Nebulae</span>{" "}represent
                     contract deployments &mdash; new smart contracts born on-chain.
                   </p>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="text-accent mt-0.5">&#8594;</span>
+                  <span className="w-4 shrink-0 text-center text-accent mt-0.5">&#8594;</span>
                   <p>
                     <span className="text-white">Beams of light</span> are live
                     transactions streaming in real-time when Live Mode is on.
                   </p>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="text-cyan-400 mt-0.5">&#9711;</span>
+                  <span className="w-4 shrink-0 text-center text-cyan-400 mt-0.5">&#9711;</span>
                   <p>
                     <span className="text-white">Cosmic pulses</span> ripple out
                     from the center when new blocks are mined.

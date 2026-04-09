@@ -1,21 +1,29 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useAccount } from "wagmi";
 import { useGalaxyStore } from "@/hooks/useGalaxyStore";
 import { useBlockchainData } from "@/hooks/useBlockchainData";
 import { AddressChip } from "@/components/shared/AddressChip";
+import { ClaimStarModal } from "./ClaimStarModal";
+import { PLANET_PALETTES } from "@/types";
 import { formatEth, formatNumber, formatTokenBalance, truncateAddress } from "@/lib/utils";
 
 const VISIBLE_LIMIT = 5;
 
 export function WalletDetail({ address }: { address: string }) {
   const { wallets, transactions, selectWallet, selectContract, selectTransaction, removeWallet, clearSelection, isLoading } = useGalaxyStore();
+  const { address: connectedAddress } = useAccount();
   const [showAllTxs, setShowAllTxs] = useState(false);
   const [showAllConnected, setShowAllConnected] = useState(false);
   const [showAllNebulae, setShowAllNebulae] = useState(false);
   const [showAllTokens, setShowAllTokens] = useState(false);
+  const [claimModalOpen, setClaimModalOpen] = useState(false);
   const { fetchWallet } = useBlockchainData();
   const wallet = wallets.get(address);
+
+  const isOwnWallet = connectedAddress?.toLowerCase() === address.toLowerCase();
+  const registration = wallet?.registeredStar;
 
   const walletTxs = useMemo(
     () =>
@@ -102,6 +110,68 @@ export function WalletDetail({ address }: { address: string }) {
           </button>
         </div>
       </div>
+
+      {/* Registered star info */}
+      {registration?.exists && (
+        <div
+          className="px-4 py-3 rounded-xl space-y-2"
+          style={{
+            background: "rgba(255, 215, 0, 0.06)",
+            border: "1px solid rgba(255, 215, 0, 0.15)",
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <span style={{ color: "#FFD700", fontSize: "14px" }}>&#9733;</span>
+            <span className="text-sm font-medium" style={{ color: "#FFD700" }}>
+              {registration.name}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div
+              className="w-3 h-3 rounded-full"
+              style={{
+                background: PLANET_PALETTES[registration.colorIndex % PLANET_PALETTES.length].coreMid,
+                boxShadow: `0 0 6px ${PLANET_PALETTES[registration.colorIndex % PLANET_PALETTES.length].aura}`,
+              }}
+            />
+            <span className="text-xs text-secondary">
+              {["Nebula Rose", "Solar Flare", "Blue Giant", "Red Dwarf", "Emerald Pulse", "Void Shard", "Inferno", "Frost Crystal"][registration.colorIndex % 8]}
+            </span>
+          </div>
+          {isOwnWallet && (
+            <button
+              onClick={() => setClaimModalOpen(true)}
+              className="text-xs hover:text-white transition-colors"
+              style={{ color: "#FFD700" }}
+            >
+              Edit registration
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Claim button for unregistered own wallet */}
+      {isOwnWallet && !registration?.exists && (
+        <button
+          onClick={() => setClaimModalOpen(true)}
+          className="w-full py-3 rounded-xl text-sm font-medium transition-all hover:brightness-110"
+          style={{
+            background: "linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 170, 0, 0.1))",
+            border: "1px solid rgba(255, 215, 0, 0.25)",
+            color: "#FFD700",
+          }}
+        >
+          &#9733; Claim Your Star
+        </button>
+      )}
+
+      <ClaimStarModal
+        open={claimModalOpen}
+        onClose={() => setClaimModalOpen(false)}
+        isUpdate={registration?.exists ?? false}
+        currentName={registration?.name ?? ""}
+        currentColorIndex={registration?.colorIndex ?? 0}
+      />
 
       <div>
         <label className="text-xs text-secondary uppercase tracking-wider">Balance</label>

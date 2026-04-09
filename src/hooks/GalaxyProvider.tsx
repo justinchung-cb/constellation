@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo, useEffect, useRef, type ReactNode } from "react";
 import { GalaxyContext, type GalaxyStore, type StarDeathEntry } from "./useGalaxyStore";
-import type { WalletNode, TransactionEdge, SelectedEntity, ContractCreation } from "@/types";
+import type { WalletNode, TransactionEdge, SelectedEntity, ContractCreation, StarRegistration } from "@/types";
 import { starSize } from "@/lib/galaxy-math";
 import { walletToPosition, clusterPositions } from "@/lib/galaxy-math";
 
@@ -274,6 +274,17 @@ export function GalaxyProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const setWalletRegistration = useCallback((address: string, registration: StarRegistration) => {
+    const lower = address.toLowerCase();
+    setWallets((prev) => {
+      const w = prev.get(lower);
+      if (!w) return prev;
+      const next = new Map(prev);
+      next.set(lower, { ...w, registeredStar: registration });
+      return next;
+    });
+  }, []);
+
   const markAsContract = useCallback((address: string) => {
     const lower = address.toLowerCase();
     setWallets((prev) => {
@@ -376,6 +387,7 @@ export function GalaxyProvider({ children }: { children: ReactNode }) {
       addWallet,
       removeWallet,
       ensureWallet,
+      setWalletRegistration,
       markAsContract,
       addContractCreation,
       addTransactions,
@@ -397,7 +409,7 @@ export function GalaxyProvider({ children }: { children: ReactNode }) {
     [
       wallets, transactions, liveQueue, contractCreations, clustered, selectedEntity, cameraTarget,
       isLiveMode, isLoading, selectWallet, selectContract, selectTransaction,
-      selectBlock, clearSelection, addWallet, removeWallet, ensureWallet, markAsContract, addContractCreation, addTransactions,
+      selectBlock, clearSelection, addWallet, removeWallet, ensureWallet, setWalletRegistration, markAsContract, addContractCreation, addTransactions,
       addLiveTransaction, promoteLiveTransaction, setLoading, setLiveMode, setLatestBlock,
       resetAllData, triggerBlockPulse, goBack, goForward, navVersion,
     ],

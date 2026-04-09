@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { OrbitControls, Text, Billboard } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 import type { Mesh } from "three";
 import * as THREE from "three";
@@ -26,6 +26,7 @@ const PLANET_GEO = (() => {
 })();
 const SHARED_HIT_GEO = new THREE.SphereGeometry(1, 6, 6);
 const HIT_MAT = new THREE.MeshBasicMaterial({ visible: false });
+const CROWN_GEO = new THREE.TorusGeometry(1, 0.035, 8, 48);
 
 const FLASH_DURATION = 1.8;
 const BIRTH_DURATION = 1.0;
@@ -246,6 +247,8 @@ const PulsingStar = memo(function PulsingStar({
   colorIndex,
   brightness,
   address,
+  starName,
+  isRegistered,
   selectedRef,
   connectedRef,
   flashingRef,
@@ -258,6 +261,8 @@ const PulsingStar = memo(function PulsingStar({
   colorIndex: number;
   brightness: number;
   address: string;
+  starName?: string;
+  isRegistered?: boolean;
   selectedRef: React.RefObject<string | null>;
   connectedRef: React.RefObject<Set<string>>;
   flashingRef: React.RefObject<Map<string, number>>;
@@ -267,6 +272,7 @@ const PulsingStar = memo(function PulsingStar({
 }) {
   const groupRef = useRef<THREE.Group>(null);
   const starRef = useRef<Mesh>(null);
+  const crownRef = useRef<Mesh>(null);
   const hoveredRef = useRef(0);
   const hoverTargetRef = useRef(0);
 
@@ -346,6 +352,14 @@ const PulsingStar = memo(function PulsingStar({
     uWarpStrength: { value: variation.warpStrength },
     uBandTilt: { value: variation.bandTilt },
   }).current;
+
+  useEffect(() => {
+    uniforms.uColorDeep.value.set(palette.coreDeep);
+    uniforms.uColorMid.value.set(palette.coreMid);
+    uniforms.uColorLight.value.set(palette.coreLight);
+    uniforms.uRimColor.value.set(palette.rim);
+    particleUniforms.uColor.value.set(palette.aura);
+  }, [palette, uniforms, particleUniforms]);
 
   const handleClick = useCallback((e: { stopPropagation: () => void }) => {
     e.stopPropagation();
@@ -434,6 +448,15 @@ const PulsingStar = memo(function PulsingStar({
     if (particleRef.current) {
       particleRef.current.scale.setScalar(size * 0.6 * pulse);
     }
+
+    if (crownRef.current) {
+      crownRef.current.rotation.z = now * 0.3;
+      crownRef.current.rotation.x = Math.PI / 2 + Math.sin(now * 0.5) * 0.15;
+      const crownScale = size * 0.6 * pulse * 1.6;
+      crownRef.current.scale.setScalar(crownScale);
+      const crownMat = crownRef.current.material as THREE.MeshBasicMaterial;
+      crownMat.opacity = (isConnected ? 0.3 : 0.6) + Math.sin(now * 2) * 0.1;
+    }
   });
 
   return (
@@ -470,6 +493,35 @@ const PulsingStar = memo(function PulsingStar({
           toneMapped={false}
         />
       </points>
+
+      {/* Crown ring for registered stars */}
+      {isRegistered && (
+        <mesh ref={crownRef} geometry={CROWN_GEO} rotation={[Math.PI / 2, 0, 0]} scale={size * 0.6 * 1.6}>
+          <meshBasicMaterial
+            color="#FFD700"
+            transparent
+            opacity={0.6}
+            blending={THREE.AdditiveBlending}
+            toneMapped={false}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
+
+      {/* Name label for registered stars */}
+      {starName && (
+        <Billboard position={[0, size * 1.6, 0]}>
+          <Text
+            fontSize={0.22}
+            color="#FFD700"
+            anchorY="bottom"
+            outlineWidth={0.015}
+            outlineColor="#000000"
+          >
+            {starName}
+          </Text>
+        </Billboard>
+      )}
     </group>
   );
 });
@@ -592,8 +644,10 @@ export function GalaxyScene({ introPhase = "ready" }: { introPhase?: "intro" | "
         address: w.address,
         position: clusteredPositions.get(w.address) ?? w.position,
         size: starSize(w.balance),
-        colorIndex: Math.abs(parseInt(w.address.slice(2, 4), 16)) % 8,
+        colorIndex: w.registeredStar?.colorIndex ?? Math.abs(parseInt(w.address.slice(2, 4), 16)) % 8,
         brightness: starBrightness(w.balance),
+        starName: w.registeredStar?.name,
+        isRegistered: w.registeredStar?.exists ?? false,
       }));
   }, [wallets, clusteredPositions]);
 
@@ -716,6 +770,8 @@ export function GalaxyScene({ introPhase = "ready" }: { introPhase?: "intro" | "
             size={star.size}
             colorIndex={star.colorIndex}
             brightness={star.brightness}
+            starName={star.starName}
+            isRegistered={star.isRegistered}
             selectedRef={selectedRef}
             connectedRef={connectedRef}
             flashingRef={flashingRef}
