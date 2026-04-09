@@ -1,28 +1,37 @@
 "use client";
 
-import { Stars } from "@react-three/drei";
+import { useLoader } from "@react-three/fiber";
+import * as THREE from "three";
 
 export function StarField() {
+  const starfieldTex = useLoader(THREE.TextureLoader, "/textures/starfield.jpg");
+  const starsLayerTex = useLoader(THREE.TextureLoader, "/textures/stars-layer.jpg");
+
   return (
     <>
-      <Stars
-        radius={100}
-        depth={60}
-        count={5000}
-        factor={7}
-        saturation={0}
-        fade
-        speed={0.8}
-      />
-      <Stars
-        radius={50}
-        depth={40}
-        count={2500}
-        factor={5}
-        saturation={0.1}
-        fade
-        speed={0.4}
-      />
+      {/* Outer shell — 8K starfield from the reference repo */}
+      <mesh>
+        <sphereGeometry args={[120, 64, 64]} />
+        <meshBasicMaterial
+          map={starfieldTex}
+          side={THREE.BackSide}
+          toneMapped={false}
+          color={[1.2, 1.2, 1.2]}
+        />
+      </mesh>
+
+      {/* Inner shell — softer stars layer at reduced opacity for depth */}
+      <mesh>
+        <sphereGeometry args={[110, 64, 64]} />
+        <meshBasicMaterial
+          map={starsLayerTex}
+          side={THREE.BackSide}
+          toneMapped={false}
+          transparent
+          opacity={0.3}
+          color={[0.8, 0.9, 1.0]}
+        />
+      </mesh>
     </>
   );
 }

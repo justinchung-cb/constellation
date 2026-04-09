@@ -26,7 +26,7 @@ contract StarRegistry {
     );
 
     function registerStar(string calldata _name, uint8 _colorIndex) external {
-        require(_colorIndex < 8, "Invalid color index");
+        require(_colorIndex < 4, "Invalid color index");
         require(!stars[msg.sender].exists, "Star already registered");
         require(bytes(_name).length > 0 && bytes(_name).length <= 32, "Invalid name");
 
@@ -44,7 +44,7 @@ contract StarRegistry {
 
     function updateStar(string calldata _name, uint8 _colorIndex) external {
         require(stars[msg.sender].exists, "Star not registered");
-        require(_colorIndex < 8, "Invalid color index");
+        require(_colorIndex < 4, "Invalid color index");
         require(bytes(_name).length > 0 && bytes(_name).length <= 32, "Invalid name");
 
         stars[msg.sender].name = _name;

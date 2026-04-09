@@ -14,7 +14,7 @@ Constellation is a 3D blockchain explorer where wallets are stars, transactions 
 - **3D:** React Three Fiber + @react-three/drei + @react-three/postprocessing
 - **Blockchain:** wagmi + viem + RainbowKit (Base Sepolia)
 - **Animation:** Framer Motion (UI panels)
-- **Fonts:** Space Grotesk (body), JetBrains Mono (addresses/hashes)
+- **Fonts:** Inter (body, matches CDS default), system monospace (addresses/hashes)
 
 ## Directory Layout
 
@@ -48,7 +48,7 @@ Constellation is a 3D blockchain explorer where wallets are stars, transactions 
 | Text secondary | `#888899` |
 | Background | `#000000` to `#0a0a1a` |
 
-Planet palettes (indexed 0-7): Nebula Rose, Solar Flare, Blue Giant, Red Dwarf, Emerald Pulse, Void Shard, Inferno, Frost Crystal — each a 5-color palette (`coreLight`, `coreMid`, `coreDeep`, `rim`, `aura`) defined in `src/types/index.ts` as `PLANET_PALETTES`. Stars use a GLSL marble shader with noise-driven swirl, Phong lighting, Fresnel rim glow, multi-layer transparent glow meshes, and an orbital ring.
+Planet palettes (indexed 0-3): Lightest, Light, Medium, Darkest — four Coinbase blue gradients ordered light-to-dark, derived from the CDS `defaultTheme` dark spectrum blue hue. Each is a 5-color palette (`coreLight`, `coreMid`, `coreDeep`, `rim`, `aura`) defined in `src/types/index.ts` as `PLANET_PALETTES`. Stars use a GLSL marble shader with noise-driven swirl, Phong lighting, Fresnel rim glow, multi-layer transparent glow meshes, and an orbital ring.
 
 ## Post-Processing
 

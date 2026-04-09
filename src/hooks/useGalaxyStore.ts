@@ -22,6 +22,7 @@ export interface GalaxyStore {
     lookAt: [number, number, number];
   } | null;
   isLiveMode: boolean;
+  isSoundEnabled: boolean;
   isLoading: boolean;
   latestBlock: number | null;
 
@@ -41,6 +42,7 @@ export interface GalaxyStore {
   setWalletRegistration: (address: string, registration: import("@/types").StarRegistration) => void;
   setLoading: (loading: boolean) => void;
   setLiveMode: (live: boolean) => void;
+  setSoundEnabled: (enabled: boolean) => void;
   setLatestBlock: (block: number) => void;
   resetAllData: () => void;
   triggerBlockPulse: () => void;

@@ -81,12 +81,8 @@ export interface PlanetPalette {
 }
 
 export const PLANET_PALETTES: readonly PlanetPalette[] = [
-  { coreLight: "#FF6EC7", coreMid: "#CC33FF", coreDeep: "#220066", rim: "#88DDFF", aura: "#4466FF" }, // 0: Nebula Rose
-  { coreLight: "#FFD066", coreMid: "#FF8C00", coreDeep: "#331800", rim: "#FFEEAA", aura: "#FF8844" }, // 1: Solar Flare
-  { coreLight: "#66DDFF", coreMid: "#0088FF", coreDeep: "#001144", rim: "#AAFFFF", aura: "#2266FF" }, // 2: Blue Giant
-  { coreLight: "#FF6666", coreMid: "#CC2244", coreDeep: "#220011", rim: "#FFAAAA", aura: "#FF4466" }, // 3: Red Dwarf
-  { coreLight: "#66FFAA", coreMid: "#00CC66", coreDeep: "#002211", rim: "#AAFFDD", aura: "#22FF88" }, // 4: Emerald Pulse
-  { coreLight: "#BB66FF", coreMid: "#7700EE", coreDeep: "#110022", rim: "#DD99FF", aura: "#6633FF" }, // 5: Void Shard
-  { coreLight: "#FFAA44", coreMid: "#FF5500", coreDeep: "#221100", rim: "#FFCC88", aura: "#FF6622" }, // 6: Inferno
-  { coreLight: "#AADDFF", coreMid: "#4488FF", coreDeep: "#001133", rim: "#DDFFFF", aura: "#4466CC" }, // 7: Frost Crystal
+  { coreLight: "#F5F8FF", coreMid: "#B9CFFF", coreDeep: "#053BB1", rim: "#F5F8FF", aura: "#84AAFD" }, // 0: Lightest (blue100/90/20/100/80)
+  { coreLight: "#B9CFFF", coreMid: "#578BFA", coreDeep: "#012A82", rim: "#F5F8FF", aura: "#3773F5" }, // 1: Light    (blue90/70/10/100/60)
+  { coreLight: "#578BFA", coreMid: "#2162EE", coreDeep: "#011D5B", rim: "#84AAFD", aura: "#0A48CE" }, // 2: Medium   (blue70/50/5/80/30)
+  { coreLight: "#2162EE", coreMid: "#0A48CE", coreDeep: "#001033", rim: "#3773F5", aura: "#053BB1" }, // 3: Darkest  (blue50/30/0/60/20)
 ] as const;

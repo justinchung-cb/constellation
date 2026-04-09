@@ -130,7 +130,7 @@ export function ClaimStarModal({
 
             {/* Header */}
             <div>
-              <h2 className="text-xl font-semibold" style={{ color: "#FFD700" }}>
+              <h2 className="text-xl font-semibold" style={{ color: "#FFFFFF" }}>
                 {isUpdate ? "Update Your Star" : "Claim Your Star"}
               </h2>
               <p className="text-sm text-secondary mt-1">
@@ -168,7 +168,7 @@ export function ClaimStarModal({
                   border: "1px solid rgba(255, 255, 255, 0.1)",
                   color: "#ffffff",
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "rgba(255, 215, 0, 0.4)")}
+                onFocus={(e) => (e.target.style.borderColor = "rgba(0, 82, 255, 0.5)")}
                 onBlur={(e) => (e.target.style.borderColor = "rgba(255, 255, 255, 0.1)")}
               />
               <p className="text-xs text-secondary mt-1">{name.length}/32 characters</p>
@@ -186,8 +186,8 @@ export function ClaimStarModal({
                     className="group relative flex flex-col items-center gap-1.5 py-2.5 rounded-xl transition-all"
                     style={{
                       background:
-                        colorIndex === i ? "rgba(255, 215, 0, 0.1)" : "rgba(255, 255, 255, 0.03)",
-                      border: `1px solid ${colorIndex === i ? "rgba(255, 215, 0, 0.4)" : "rgba(255, 255, 255, 0.06)"}`,
+                        colorIndex === i ? "rgba(0, 82, 255, 0.15)" : "rgba(255, 255, 255, 0.03)",
+                      border: `1px solid ${colorIndex === i ? "rgba(0, 82, 255, 0.5)" : "rgba(255, 255, 255, 0.06)"}`,
                     }}
                   >
                     {/* Color swatch — stacked gradient circles */}
@@ -206,14 +206,14 @@ export function ClaimStarModal({
                         <div
                           className="absolute -inset-0.5 rounded-full"
                           style={{
-                            border: "2px solid #FFD700",
-                            boxShadow: "0 0 8px rgba(255, 215, 0, 0.4)",
+                            border: "2px solid #0052FF",
+                            boxShadow: "0 0 8px rgba(0, 82, 255, 0.4)",
                           }}
                         />
                       )}
                     </div>
                     <span className="text-[10px] text-secondary">
-                      {["Rose", "Solar", "Blue", "Red", "Emerald", "Void", "Inferno", "Frost"][i]}
+                      {["Lightest", "Light", "Medium", "Darkest"][i]}
                     </span>
                   </button>
                 ))}
@@ -259,10 +259,10 @@ export function ClaimStarModal({
               className="w-full py-3 rounded-xl text-sm font-medium transition-all disabled:opacity-40"
               style={{
                 background: isWorking
-                  ? "rgba(255, 215, 0, 0.15)"
-                  : "linear-gradient(135deg, rgba(255, 215, 0, 0.25), rgba(255, 170, 0, 0.2))",
-                border: "1px solid rgba(255, 215, 0, 0.3)",
-                color: "#FFD700",
+                  ? "rgba(0, 82, 255, 0.15)"
+                  : "linear-gradient(135deg, rgba(0, 82, 255, 0.3), rgba(0, 60, 200, 0.25))",
+                border: "1px solid rgba(0, 82, 255, 0.4)",
+                color: "#FFFFFF",
               }}
             >
               {isConfirming

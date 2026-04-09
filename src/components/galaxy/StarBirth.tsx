@@ -4,8 +4,8 @@ import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-const BIRTH_EFFECT_DURATION = 1.4;
-const PARTICLE_COUNT = 80;
+const BIRTH_EFFECT_DURATION = 1.0;
+const PARTICLE_COUNT = 40;
 const SHOCKWAVE_GEO = new THREE.RingGeometry(0.92, 1, 64);
 const FLASH_GEO = new THREE.SphereGeometry(1, 16, 16);
 
@@ -29,7 +29,7 @@ const BIRTH_VERTEX = /* glsl */ `
     vAlpha = fade * fade * fade;
 
     vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);
-    gl_PointSize = aSize * (200.0 / -mvPos.z) * (1.0 - t * 0.6);
+    gl_PointSize = aSize * (120.0 / -mvPos.z) * (1.0 - t * 0.6);
     gl_Position = projectionMatrix * mvPos;
   }
 `;
@@ -73,8 +73,8 @@ export function StarBirth({
   const flashRef = useRef<THREE.Mesh>(null);
   const expiredRef = useRef(false);
 
-  const scale = Math.max(size * 1.5, 0.5);
-  const maxRadius = scale * 4;
+  const scale = Math.max(size * 1.0, 0.3);
+  const maxRadius = scale * 2;
 
   const particleData = useMemo(() => {
     const dirs = new Float32Array(PARTICLE_COUNT * 3);
@@ -89,7 +89,7 @@ export function StarBirth({
       dirs[i * 3 + 1] = Math.sin(phi) * Math.sin(theta);
       dirs[i * 3 + 2] = Math.cos(phi);
 
-      sizes[i] = 1.0 + Math.random() * 3.0;
+      sizes[i] = 0.5 + Math.random() * 1.5;
       speeds[i] = 0.3 + Math.random() * 0.7;
       positions[i * 3] = 0;
       positions[i * 3 + 1] = 0;
@@ -126,21 +126,21 @@ export function StarBirth({
     particleUniforms.uProgress.value = t;
 
     if (flashRef.current) {
-      const flashT = Math.min(t / 0.12, 1);
-      const flashScale = scale * (0.8 + flashT * 2);
+      const flashT = Math.min(t / 0.1, 1);
+      const flashScale = scale * (0.5 + flashT * 0.8);
       flashRef.current.scale.setScalar(flashScale);
       const mat = flashRef.current.material as THREE.MeshBasicMaterial;
-      mat.opacity = (1 - flashT) * 0.85;
+      mat.opacity = (1 - flashT) * 0.6;
     }
 
     if (shockRef.current) {
       const shockDelay = 0.04;
       const shockT = Math.max(0, (t - shockDelay) / (1 - shockDelay));
       const eased = 1 - Math.pow(1 - shockT, 3);
-      shockRef.current.scale.setScalar(eased * maxRadius * 2);
+      shockRef.current.scale.setScalar(eased * maxRadius * 1.2);
       const mat = shockRef.current.material as THREE.MeshBasicMaterial;
       const fade = shockT < 0.25 ? shockT / 0.25 : 1 - (shockT - 0.25) / 0.75;
-      mat.opacity = fade * 0.25;
+      mat.opacity = fade * 0.15;
     }
   });
 

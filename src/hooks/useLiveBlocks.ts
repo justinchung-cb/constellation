@@ -6,26 +6,40 @@ import { useWatchBlocks } from "wagmi";
 import type { TransactionEdge, ContractCreation } from "@/types";
 import { walletToPosition } from "@/lib/galaxy-math";
 import { useGalaxyStore } from "./useGalaxyStore";
+import { useTransactionSound } from "./useTransactionSound";
 
 export function useLiveBlocks() {
   const publicClient = usePublicClient();
   const {
-    wallets, isLiveMode, ensureWallet, markAsContract,
+    wallets, isLiveMode, isSoundEnabled, ensureWallet, markAsContract,
     addLiveTransaction, addTransactions,
     addContractCreation,
     setLatestBlock, triggerBlockPulse,
   } = useGalaxyStore();
 
+  const playTransactionSound = useTransactionSound();
+
   const walletsRef = useRef(wallets);
   walletsRef.current = wallets;
+
+  const liveModeRef = useRef(isLiveMode);
+  liveModeRef.current = isLiveMode;
+
+  const soundEnabledRef = useRef(isSoundEnabled);
+  soundEnabledRef.current = isSoundEnabled;
+
+  const playSoundRef = useRef(playTransactionSound);
+  playSoundRef.current = playTransactionSound;
 
   const hasWallets = wallets.size > 0;
 
   const processBlock = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (block: any) => {
+      const live = liveModeRef.current;
+
       setLatestBlock(Number(block.number));
-      triggerBlockPulse();
+      if (live) triggerBlockPulse();
 
       const knownAddresses = walletsRef.current;
       if (knownAddresses.size === 0) return;
@@ -79,11 +93,12 @@ export function useLiveBlocks() {
         }
 
         matchedEdges.push(edge);
-        addLiveTransaction(edge);
+        if (live) addLiveTransaction(edge);
       }
 
       if (matchedEdges.length > 0) {
         addTransactions(matchedEdges);
+        if (soundEnabledRef.current) playSoundRef.current();
 
         if (publicClient) {
           for (const edge of matchedEdges) {
@@ -109,7 +124,7 @@ export function useLiveBlocks() {
   const errorCount = useRef(0);
 
   useWatchBlocks({
-    enabled: hasWallets && isLiveMode,
+    enabled: hasWallets,
     includeTransactions: true,
     emitMissed: true,
     emitOnBegin: true,

@@ -161,7 +161,7 @@ export function GalaxyCanvas() {
       <div style={{ position: "fixed", inset: 0, zIndex: 0, background: "#0a0a1a" }}>
         <Canvas
           camera={{ position: [0, 7, 0], fov: 60, near: 0.1, far: 1000 }}
-          gl={{ antialias: true, alpha: false }}
+          gl={{ antialias: true, alpha: false, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.2 }}
           style={{ width: "100%", height: "100%" }}
         >
           <color attach="background" args={["#0a0a1a"]} />
@@ -209,7 +209,7 @@ export function GalaxyCanvas() {
         >
           <h1
             style={{
-              fontFamily: "var(--font-space-grotesk), sans-serif",
+              fontFamily: "var(--font-inter), 'Inter', sans-serif",
               fontSize: "clamp(3rem, 8vw, 7rem)",
               fontWeight: 700,
               color: "#ffffff",

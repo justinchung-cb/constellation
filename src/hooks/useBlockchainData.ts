@@ -6,7 +6,9 @@ import type { TransactionEdge, WalletNode, ContractCreation, TokenBalance } from
 import { walletToPosition } from "@/lib/galaxy-math";
 import { useGalaxyStore } from "./useGalaxyStore";
 
-const BASESCAN_API = "https://api-sepolia.basescan.org/api";
+const ETHERSCAN_V2_API = "https://api.etherscan.io/v2/api";
+const BASE_SEPOLIA_CHAIN_ID = 84532;
+const ETHERSCAN_API_KEY = process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY || "";
 
 const ERC20_BALANCE_ABI = [
   {
@@ -76,12 +78,24 @@ export function useBlockchainData() {
             };
           });
 
-        if (edges.length > 0) addTransactions(edges);
+        if (edges.length > 0) {
+          addTransactions(edges);
+
+          for (const edge of edges) {
+            const counterparty = edge.from === lower ? edge.to : edge.from;
+            if (counterparty && !counterparty.startsWith("contract:")) {
+              ensureWallet(counterparty);
+              publicClient.getCode({ address: counterparty as `0x${string}` }).then((code) => {
+                if (code && code !== "0x") markAsContract(counterparty);
+              }).catch(() => {});
+            }
+          }
+        }
       } catch (err) {
         console.error("Block scan failed:", err);
       }
     },
-    [publicClient, addTransactions],
+    [publicClient, addTransactions, ensureWallet, markAsContract],
   );
 
   const fetchTxHistory = useCallback(
@@ -89,11 +103,14 @@ export function useBlockchainData() {
       const lower = address.toLowerCase();
 
       try {
-        const url = `${BASESCAN_API}?module=account&action=txlist&address=${lower}&startblock=0&endblock=99999999&page=1&offset=50&sort=desc`;
+        const url = `${ETHERSCAN_V2_API}?chainid=${BASE_SEPOLIA_CHAIN_ID}&module=account&action=txlist&address=${lower}&startblock=0&endblock=99999999&page=1&offset=50&sort=desc&apikey=${ETHERSCAN_API_KEY}`;
         const res = await fetch(url);
         const data = await res.json();
 
-        if (data.status !== "1" || !Array.isArray(data.result)) return;
+        if (data.status !== "1" || !Array.isArray(data.result)) {
+          await fetchLatestBlockTxs(lower);
+          return;
+        }
 
         const edges: TransactionEdge[] = [];
         const contractTxHashes: { hash: string; from: string; blockNumber: number; timestamp: number }[] = [];
@@ -149,14 +166,14 @@ export function useBlockchainData() {
           if (tx.to !== lower && tx.to && !tx.to.startsWith("contract:")) counterparties.add(tx.to);
         }
 
-        for (const addr of Array.from(counterparties).slice(0, 8)) {
+        for (const addr of counterparties) {
           ensureWallet(addr);
           publicClient?.getCode({ address: addr as `0x${string}` }).then((code) => {
             if (code && code !== "0x") markAsContract(addr);
           }).catch(() => {});
         }
       } catch (err) {
-        console.error("Basescan API failed, falling back to block scan:", err);
+        console.error("Etherscan API failed, falling back to block scan:", err);
         await fetchLatestBlockTxs(lower);
       }
     },
@@ -168,7 +185,7 @@ export function useBlockchainData() {
     async (address: string): Promise<TokenBalance[]> => {
       const lower = address.toLowerCase();
       try {
-        const url = `${BASESCAN_API}?module=account&action=tokentx&address=${lower}&page=1&offset=100&sort=desc`;
+        const url = `${ETHERSCAN_V2_API}?chainid=${BASE_SEPOLIA_CHAIN_ID}&module=account&action=tokentx&address=${lower}&page=1&offset=100&sort=desc&apikey=${ETHERSCAN_API_KEY}`;
         const res = await fetch(url);
         const data = await res.json();
 

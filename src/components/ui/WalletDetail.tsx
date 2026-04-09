@@ -18,6 +18,7 @@ export function WalletDetail({ address }: { address: string }) {
   const [showAllConnected, setShowAllConnected] = useState(false);
   const [showAllNebulae, setShowAllNebulae] = useState(false);
   const [showAllTokens, setShowAllTokens] = useState(false);
+  const [tokenSearch, setTokenSearch] = useState("");
   const [claimModalOpen, setClaimModalOpen] = useState(false);
   const { fetchWallet } = useBlockchainData();
   const wallet = wallets.get(address);
@@ -40,6 +41,14 @@ export function WalletDetail({ address }: { address: string }) {
         .sort((a, b) => (Number(b.balance) / 10 ** b.decimals) - (Number(a.balance) / 10 ** a.decimals)),
     [wallet?.tokens],
   );
+
+  const filteredTokens = useMemo(() => {
+    if (!tokenSearch.trim()) return sortedTokens;
+    const q = tokenSearch.toLowerCase();
+    return sortedTokens.filter(
+      (t) => t.symbol.toLowerCase().includes(q) || t.name.toLowerCase().includes(q),
+    );
+  }, [sortedTokens, tokenSearch]);
 
   const { connectedStars, connectedNebulae } = useMemo(() => {
     const stars: string[] = [];
@@ -116,13 +125,13 @@ export function WalletDetail({ address }: { address: string }) {
         <div
           className="px-4 py-3 rounded-xl space-y-2"
           style={{
-            background: "rgba(255, 215, 0, 0.06)",
-            border: "1px solid rgba(255, 215, 0, 0.15)",
+            background: "rgba(0, 82, 255, 0.06)",
+            border: "1px solid rgba(0, 82, 255, 0.15)",
           }}
         >
           <div className="flex items-center gap-2">
-            <span style={{ color: "#FFD700", fontSize: "14px" }}>&#9733;</span>
-            <span className="text-sm font-medium" style={{ color: "#FFD700" }}>
+            <span style={{ color: "#FFFFFF", fontSize: "14px" }}>&#9733;</span>
+            <span className="text-sm font-medium" style={{ color: "#FFFFFF" }}>
               {registration.name}
             </span>
           </div>
@@ -135,14 +144,14 @@ export function WalletDetail({ address }: { address: string }) {
               }}
             />
             <span className="text-xs text-secondary">
-              {["Nebula Rose", "Solar Flare", "Blue Giant", "Red Dwarf", "Emerald Pulse", "Void Shard", "Inferno", "Frost Crystal"][registration.colorIndex % 8]}
+              {["Lightest", "Light", "Medium", "Darkest"][registration.colorIndex % 4]}
             </span>
           </div>
           {isOwnWallet && (
             <button
               onClick={() => setClaimModalOpen(true)}
               className="text-xs hover:text-white transition-colors"
-              style={{ color: "#FFD700" }}
+              style={{ color: "#FFFFFF" }}
             >
               Edit registration
             </button>
@@ -156,9 +165,9 @@ export function WalletDetail({ address }: { address: string }) {
           onClick={() => setClaimModalOpen(true)}
           className="w-full py-3 rounded-xl text-sm font-medium transition-all hover:brightness-110"
           style={{
-            background: "linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 170, 0, 0.1))",
-            border: "1px solid rgba(255, 215, 0, 0.25)",
-            color: "#FFD700",
+            background: "linear-gradient(135deg, rgba(0, 82, 255, 0.2), rgba(0, 60, 200, 0.15))",
+            border: "1px solid rgba(0, 82, 255, 0.3)",
+            color: "#FFFFFF",
           }}
         >
           &#9733; Claim Your Star
@@ -186,24 +195,45 @@ export function WalletDetail({ address }: { address: string }) {
             Token Holdings
           </label>
           <div className="mt-2 space-y-1.5">
-            {(showAllTokens ? sortedTokens : sortedTokens.slice(0, VISIBLE_LIMIT)).map((token) => (
+            {showAllTokens && sortedTokens.length > VISIBLE_LIMIT && (
+              <input
+                type="text"
+                value={tokenSearch}
+                onChange={(e) => setTokenSearch(e.target.value)}
+                placeholder="Search tokens..."
+                className="w-full px-3 py-2 rounded-xl text-sm bg-white/5 placeholder:text-secondary/40 outline-none"
+                style={{
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  color: "#ffffff",
+                }}
+                onFocus={(e) => (e.target.style.borderColor = "rgba(0, 82, 255, 0.5)")}
+                onBlur={(e) => (e.target.style.borderColor = "rgba(255, 255, 255, 0.08)")}
+              />
+            )}
+            {(showAllTokens ? filteredTokens : sortedTokens.slice(0, VISIBLE_LIMIT)).map((token) => (
               <div
                 key={token.contractAddress}
                 className="flex items-center justify-between px-3 py-2 rounded-xl"
                 style={{ border: "1px solid rgba(255, 255, 255, 0.04)" }}
               >
-                <div className="min-w-0">
+                <div className="min-w-0 truncate">
                   <span className="text-sm font-medium">{token.symbol}</span>
-                  <span className="text-xs text-secondary ml-1.5 truncate">{token.name}</span>
+                  <span className="text-xs text-secondary ml-1.5">{token.name}</span>
                 </div>
                 <span className="text-sm font-mono shrink-0 ml-2">
                   {formatTokenBalance(token.balance, token.decimals)}
                 </span>
               </div>
             ))}
+            {showAllTokens && filteredTokens.length === 0 && tokenSearch.trim() && (
+              <p className="text-xs text-secondary py-2 text-center">No tokens match &ldquo;{tokenSearch}&rdquo;</p>
+            )}
             {sortedTokens.length > VISIBLE_LIMIT && (
               <button
-                onClick={() => setShowAllTokens((v) => !v)}
+                onClick={() => {
+                  setShowAllTokens((v) => !v);
+                  setTokenSearch("");
+                }}
                 className="w-full text-xs text-accent hover:text-accent-hover transition-colors py-2 mt-1"
               >
                 {showAllTokens ? "Show Less" : `All Tokens (${sortedTokens.length})`}

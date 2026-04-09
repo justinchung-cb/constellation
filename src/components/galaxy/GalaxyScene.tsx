@@ -28,6 +28,7 @@ const SHARED_HIT_GEO = new THREE.SphereGeometry(1, 6, 6);
 const HIT_MAT = new THREE.MeshBasicMaterial({ visible: false });
 const CROWN_GEO = new THREE.TorusGeometry(1, 0.035, 8, 48);
 
+
 const FLASH_DURATION = 1.8;
 const BIRTH_DURATION = 1.0;
 const ORBIT_PARTICLE_COUNT = 30;
@@ -174,6 +175,7 @@ const PLANET_FRAGMENT = /* glsl */ `
     vec3 N = normalize(vNormal);
     vec3 V = normalize(vViewDir);
 
+    // Marble color banding — purely cosmetic pattern
     float t = smoothstep(0.0, uDisplaceAmt, vPattern);
     vec3 base;
     if (t < 0.5) {
@@ -182,21 +184,27 @@ const PLANET_FRAGMENT = /* glsl */ `
       base = mix(uColorMid, uColorLight, (t - 0.5) * 2.0);
     }
 
-    vec3 L = normalize(vec3(0.8, 1.0, 0.6));
-    float diff = max(dot(N, L), 0.0) * 0.6 + 0.4;
+    // Blend in the lightest palette color so dark palettes still radiate
+    vec3 emissive = mix(base, uColorLight, 0.4);
 
-    vec3 H = normalize(L + V);
-    float spec = pow(max(dot(N, H), 0.0), 64.0);
+    // Nearly uniform glow — only a subtle 20% falloff at edges avoids
+    // the "lit from one direction" artifact from displaced normals
+    float facing = max(dot(N, V), 0.0);
+    float glow = 0.8 + 0.2 * facing;
 
-    float fresnel = pow(1.0 - max(dot(N, V), 0.0), 3.0);
+    vec3 color = emissive * glow * uBrightness;
 
-    vec3 color = base * diff * uBrightness;
-    color += spec * uRimColor * 0.4;
-    color += fresnel * uRimColor * 0.4;
-    color += base * 0.15 * uBrightness;
+    // Rim light — subsurface scattering at the silhouette
+    float rim = pow(1.0 - facing, 2.0);
+    color += uRimColor * rim * 0.8 * uBrightness;
 
-    float edgeFade = 0.6 + 0.4 * max(dot(N, V), 0.0);
-    gl_FragColor = vec4(color, edgeFade * 0.85);
+    // Center hot-spot — looking straight through to the bright core
+    float hot = pow(facing, 4.0);
+    color += uColorLight * hot * 0.35 * uBrightness;
+
+    // Translucent surface lets the internal point light shine through
+    float alpha = 0.35 + 0.3 * facing;
+    gl_FragColor = vec4(color, alpha);
   }
 `;
 
@@ -209,18 +217,18 @@ const SEED_WALLETS = [
   { address: "0x000000000000000000000000000000000000dead", colorIndex: 3, size: 0.6, brightness: 1.8 },
   { address: "0xd8da6bf26964af9d7eed9e03e53415d37aa96045", colorIndex: 1, size: 0.5, brightness: 1.5 },
   { address: "0xbe0eb53f46cd790cd13851d5eff43d12404d33e8", colorIndex: 2, size: 0.45, brightness: 1.3 },
-  { address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", colorIndex: 4, size: 0.55, brightness: 1.6 },
-  { address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", colorIndex: 7, size: 0.4, brightness: 1.2 },
-  { address: "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984", colorIndex: 5, size: 0.35, brightness: 1.1 },
-  { address: "0x7a250d5630b4cf539739df2c5dacb4c659f2488d", colorIndex: 6, size: 0.5, brightness: 1.4 },
+  { address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", colorIndex: 0, size: 0.55, brightness: 1.6 },
+  { address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", colorIndex: 3, size: 0.4, brightness: 1.2 },
+  { address: "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984", colorIndex: 1, size: 0.35, brightness: 1.1 },
+  { address: "0x7a250d5630b4cf539739df2c5dacb4c659f2488d", colorIndex: 2, size: 0.5, brightness: 1.4 },
   { address: "0x6b175474e89094c44da98b954eedeac495271d0f", colorIndex: 1, size: 0.4, brightness: 1.3 },
-  { address: "0xdac17f958d2ee523a2206206994597c13d831ec7", colorIndex: 4, size: 0.38, brightness: 1.2 },
-  { address: "0x1111111254eeb25477b68fb85ed929f73a960582", colorIndex: 7, size: 0.42, brightness: 1.3 },
+  { address: "0xdac17f958d2ee523a2206206994597c13d831ec7", colorIndex: 0, size: 0.38, brightness: 1.2 },
+  { address: "0x1111111254eeb25477b68fb85ed929f73a960582", colorIndex: 3, size: 0.42, brightness: 1.3 },
   { address: "0x514910771af9ca656af840dff83e8264ecf986ca", colorIndex: 2, size: 0.32, brightness: 1.0 },
-  { address: "0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce", colorIndex: 6, size: 0.28, brightness: 0.9 },
+  { address: "0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce", colorIndex: 2, size: 0.28, brightness: 0.9 },
   { address: "0xdef1c0ded9bec7f1a1670819833240f027b25eff", colorIndex: 0, size: 0.38, brightness: 1.1 },
   { address: "0x3fc91a3afd70395cd496c647d5a6cc9d4b2b7fad", colorIndex: 1, size: 0.34, brightness: 1.0 },
-  { address: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0", colorIndex: 5, size: 0.35, brightness: 1.1 },
+  { address: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0", colorIndex: 3, size: 0.35, brightness: 1.1 },
 ];
 
 function elasticOut(t: number): number {
@@ -238,8 +246,8 @@ interface PushEffect {
   strength: number;
 }
 
-const PUSH_DURATION = 1.0;
-const PUSH_RADIUS = 6;
+const PUSH_DURATION = 0.8;
+const PUSH_RADIUS = 3;
 
 const PulsingStar = memo(function PulsingStar({
   position,
@@ -273,6 +281,7 @@ const PulsingStar = memo(function PulsingStar({
   const groupRef = useRef<THREE.Group>(null);
   const starRef = useRef<Mesh>(null);
   const crownRef = useRef<Mesh>(null);
+  const starLightRef = useRef<THREE.PointLight>(null);
   const hoveredRef = useRef(0);
   const hoverTargetRef = useRef(0);
 
@@ -396,7 +405,7 @@ const PulsingStar = memo(function PulsingStar({
       if (elapsed < BIRTH_DURATION) {
         const t = elapsed / BIRTH_DURATION;
         birthScale = elasticOut(t);
-        birthEmissiveBoost = (1 - t) * 3;
+        birthEmissiveBoost = (1 - t) * 1.5;
       } else {
         birthRef.current.delete(address);
       }
@@ -434,9 +443,14 @@ const PulsingStar = memo(function PulsingStar({
     const hoverMul = 1.0 + hoveredRef.current * 0.15;
     const sizeMultiplier = (isSelected ? 1.3 : isConnected ? 1.0 : 1) * hoverMul;
     const pulse = sizeMultiplier * birthScale + Math.sin(now * 2 + position[0] * 10) * 0.06 * birthScale;
-    starRef.current.scale.setScalar(size * 0.6 * pulse);
+    const coreScale = size * 0.6 * pulse;
+    starRef.current.scale.setScalar(coreScale);
 
     const dimFactor = isConnected ? 0.7 : 1;
+
+    if (starLightRef.current) {
+      starLightRef.current.intensity = brightness * size * 3.0 * pulse * dimFactor;
+    }
     const hoverBrightness = hoveredRef.current * 0.5;
     const selectMul = isSelected ? 1.8 : 1.0;
     uniforms.uTime.value = now;
@@ -481,6 +495,15 @@ const PulsingStar = memo(function PulsingStar({
         />
       </mesh>
 
+      {/* Emissive point light radiating from inside the star */}
+      <pointLight
+        ref={starLightRef}
+        color={palette.aura}
+        intensity={brightness * size * 3.0}
+        distance={10}
+        decay={2}
+      />
+
       {/* Orbiting particles */}
       <points ref={particleRef} geometry={particleGeo} scale={size * 0.6} raycast={() => {}}>
         <shaderMaterial
@@ -498,7 +521,7 @@ const PulsingStar = memo(function PulsingStar({
       {isRegistered && (
         <mesh ref={crownRef} geometry={CROWN_GEO} rotation={[Math.PI / 2, 0, 0]} scale={size * 0.6 * 1.6}>
           <meshBasicMaterial
-            color="#FFD700"
+            color="#FFFFFF"
             transparent
             opacity={0.6}
             blending={THREE.AdditiveBlending}
@@ -513,7 +536,7 @@ const PulsingStar = memo(function PulsingStar({
         <Billboard position={[0, size * 1.6, 0]}>
           <Text
             fontSize={0.22}
-            color="#FFD700"
+            color="#FFFFFF"
             anchorY="bottom"
             outlineWidth={0.015}
             outlineColor="#000000"
@@ -610,7 +633,7 @@ export function GalaxyScene({ introPhase = "ready" }: { introPhase?: "intro" | "
         pushEffectsRef.current.push({
           origin: d.position,
           startTime: d.startTime,
-          strength: 1.5,
+          strength: 0.6,
         });
       }
     }
@@ -644,7 +667,7 @@ export function GalaxyScene({ introPhase = "ready" }: { introPhase?: "intro" | "
         address: w.address,
         position: clusteredPositions.get(w.address) ?? w.position,
         size: starSize(w.balance),
-        colorIndex: w.registeredStar?.colorIndex ?? Math.abs(parseInt(w.address.slice(2, 4), 16)) % 8,
+        colorIndex: w.registeredStar?.colorIndex ?? Math.abs(parseInt(w.address.slice(2, 4), 16)) % 4,
         brightness: starBrightness(w.balance),
         starName: w.registeredStar?.name,
         isRegistered: w.registeredStar?.exists ?? false,
@@ -740,8 +763,9 @@ export function GalaxyScene({ introPhase = "ready" }: { introPhase?: "intro" | "
 
       {/* Constellation content — hidden during intro, appears as camera zooms in */}
       <group visible={constellationVisible}>
-        <ambientLight intensity={0.1} />
-        <pointLight position={[0, 0, 0]} intensity={0.4} color="#4466ff" />
+        <ambientLight intensity={0.15} />
+        <pointLight position={[0, 0, 0]} intensity={0.8} color="#4466ff" />
+        <hemisphereLight args={["#334488", "#0a0a1a", 0.12]} />
 
         <StarField />
 
@@ -863,11 +887,11 @@ export function GalaxyScene({ introPhase = "ready" }: { introPhase?: "intro" | "
 
       <EffectComposer multisampling={0}>
         <Bloom
-          intensity={1.2}
-          luminanceThreshold={0.6}
+          intensity={1.8}
+          luminanceThreshold={0.4}
           luminanceSmoothing={0.9}
           mipmapBlur
-          levels={5}
+          levels={6}
         />
         <Vignette offset={0.5} darkness={0.5} />
       </EffectComposer>

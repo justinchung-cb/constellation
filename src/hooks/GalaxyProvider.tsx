@@ -98,6 +98,7 @@ export function GalaxyProvider({ children }: { children: ReactNode }) {
   const [selectedEntity, setSelectedEntity] = useState<SelectedEntity | null>(null);
   const [cameraTarget, setCameraTarget] = useState<GalaxyStore["cameraTarget"]>(null);
   const [isLiveMode, setIsLiveMode] = useState(true);
+  const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const latestBlockRef = useRef<number | null>(initial?.latestBlock ?? null);
 
@@ -235,7 +236,7 @@ export function GalaxyProvider({ children }: { children: ReactNode }) {
     const wallet = wallets.get(lower);
     if (wallet) {
       const pos = clustered.get(lower) ?? wallet.position;
-      const colorIndex = Math.abs(parseInt(lower.slice(2, 4), 16)) % 8;
+      const colorIndex = Math.abs(parseInt(lower.slice(2, 4), 16)) % 4;
       deathQueueRef.current.push({
         position: pos,
         colorIndex,
@@ -352,6 +353,7 @@ export function GalaxyProvider({ children }: { children: ReactNode }) {
 
   const setLoading = useCallback((loading: boolean) => setIsLoading(loading), []);
   const setLiveMode = useCallback((live: boolean) => setIsLiveMode(live), []);
+  const setSoundEnabled = useCallback((enabled: boolean) => setIsSoundEnabled(enabled), []);
   const setLatestBlock = useCallback((block: number) => {
     latestBlockRef.current = block;
   }, []);
@@ -377,6 +379,7 @@ export function GalaxyProvider({ children }: { children: ReactNode }) {
       selectedEntity,
       cameraTarget,
       isLiveMode,
+      isSoundEnabled,
       isLoading,
       latestBlock: latestBlockRef.current,
       selectWallet,
@@ -395,6 +398,7 @@ export function GalaxyProvider({ children }: { children: ReactNode }) {
       promoteLiveTransaction,
       setLoading,
       setLiveMode,
+      setSoundEnabled,
       setLatestBlock,
       resetAllData,
       triggerBlockPulse,
@@ -408,9 +412,9 @@ export function GalaxyProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       wallets, transactions, liveQueue, contractCreations, clustered, selectedEntity, cameraTarget,
-      isLiveMode, isLoading, selectWallet, selectContract, selectTransaction,
+      isLiveMode, isSoundEnabled, isLoading, selectWallet, selectContract, selectTransaction,
       selectBlock, clearSelection, addWallet, removeWallet, ensureWallet, setWalletRegistration, markAsContract, addContractCreation, addTransactions,
-      addLiveTransaction, promoteLiveTransaction, setLoading, setLiveMode, setLatestBlock,
+      addLiveTransaction, promoteLiveTransaction, setLoading, setLiveMode, setSoundEnabled, setLatestBlock,
       resetAllData, triggerBlockPulse, goBack, goForward, navVersion,
     ],
   );
