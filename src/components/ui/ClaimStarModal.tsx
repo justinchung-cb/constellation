@@ -86,7 +86,7 @@ export function ClaimStarModal({
     });
   }, [name, colorIndex, connectedAddress, writeContract, isUpdate]);
 
-  const isContractDeployed = STAR_REGISTRY_ADDRESS !== ZERO_ADDRESS;
+  const isContractDeployed = (STAR_REGISTRY_ADDRESS as string) !== ZERO_ADDRESS;
   const isWorking = isPending || isConfirming;
   const nameValid = name.trim().length > 0 && name.trim().length <= 32;
 

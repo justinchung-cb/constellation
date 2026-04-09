@@ -12,7 +12,7 @@ export function useStarRegistry() {
   const { setWalletRegistration, ensureWallet } = useGalaxyStore();
   const loadedRef = useRef(false);
 
-  const isContractDeployed = STAR_REGISTRY_ADDRESS !== ZERO_ADDRESS;
+  const isContractDeployed = (STAR_REGISTRY_ADDRESS as string) !== ZERO_ADDRESS;
 
   const refreshStar = useCallback(
     async (address: string) => {
