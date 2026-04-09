@@ -14,7 +14,7 @@ export function useLiveBlocks() {
     wallets, isLiveMode, isSoundEnabled, ensureWallet, markAsContract,
     addLiveTransaction, addTransactions,
     addContractCreation,
-    setLatestBlock, triggerBlockPulse,
+    setLatestBlock, triggerBlockPulse, setRpcHealthy,
   } = useGalaxyStore();
 
   const playTransactionSound = useTransactionSound();
@@ -130,11 +130,17 @@ export function useLiveBlocks() {
     emitOnBegin: true,
     pollingInterval: 4_000,
     onBlock: (block) => {
-      errorCount.current = 0;
+      if (errorCount.current > 0) {
+        errorCount.current = 0;
+        setRpcHealthy(true);
+      }
       processBlock(block);
     },
     onError: () => {
       errorCount.current += 1;
+      if (errorCount.current >= 3) {
+        setRpcHealthy(false);
+      }
       if (errorCount.current <= 3) {
         console.warn(`Block watcher: RPC request failed (attempt ${errorCount.current})`);
       }

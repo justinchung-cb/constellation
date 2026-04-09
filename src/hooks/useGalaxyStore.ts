@@ -25,6 +25,8 @@ export interface GalaxyStore {
   isSoundEnabled: boolean;
   isLoading: boolean;
   latestBlock: number | null;
+  lastError: string | null;
+  rpcHealthy: boolean;
 
   selectWallet: (address: string) => void;
   selectContract: (address: string) => void;
@@ -44,6 +46,9 @@ export interface GalaxyStore {
   setLiveMode: (live: boolean) => void;
   setSoundEnabled: (enabled: boolean) => void;
   setLatestBlock: (block: number) => void;
+  setError: (error: string) => void;
+  clearError: () => void;
+  setRpcHealthy: (healthy: boolean) => void;
   resetAllData: () => void;
   triggerBlockPulse: () => void;
   blockPulseRef: React.RefObject<number[]>;

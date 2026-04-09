@@ -11,7 +11,7 @@ export function StarField() {
     <>
       {/* Outer shell — 8K starfield from the reference repo */}
       <mesh>
-        <sphereGeometry args={[120, 64, 64]} />
+        <sphereGeometry args={[120, 32, 32]} />
         <meshBasicMaterial
           map={starfieldTex}
           side={THREE.BackSide}
@@ -22,7 +22,7 @@ export function StarField() {
 
       {/* Inner shell — softer stars layer at reduced opacity for depth */}
       <mesh>
-        <sphereGeometry args={[110, 64, 64]} />
+        <sphereGeometry args={[110, 32, 32]} />
         <meshBasicMaterial
           map={starsLayerTex}
           side={THREE.BackSide}

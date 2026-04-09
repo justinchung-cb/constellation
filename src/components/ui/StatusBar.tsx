@@ -8,7 +8,7 @@ import { formatNumber } from "@/lib/utils";
 const SEED_COUNT = 15;
 
 export function StatusBar() {
-  const { latestBlock, setLatestBlock, wallets, transactions, contractCreations, isLiveMode, setLiveMode, isSoundEnabled, setSoundEnabled, resetAllData } =
+  const { latestBlock, setLatestBlock, wallets, transactions, contractCreations, isLiveMode, setLiveMode, isSoundEnabled, setSoundEnabled, rpcHealthy, resetAllData } =
     useGalaxyStore();
   const { data: blockNumber } = useBlockNumber({ watch: true });
 
@@ -41,8 +41,21 @@ export function StatusBar() {
             {latestBlock ? `#${formatNumber(latestBlock)}` : "—"}
           </span>
         </span>
-        <span className="text-secondary">
-          Network: <span className="text-white">Base Sepolia</span>
+        <span className="text-secondary flex items-center gap-1.5">
+          <span
+            className="inline-block h-1.5 w-1.5 rounded-full"
+            style={{
+              background: rpcHealthy ? "#00FFAA" : "#FF6666",
+              boxShadow: rpcHealthy ? "0 0 4px #00FFAA" : "0 0 4px #FF6666",
+            }}
+          />
+          Network:{" "}
+          <span className="text-white">Base Sepolia</span>
+          {!rpcHealthy && (
+            <span style={{ color: "#FF6666", fontSize: "10px" }}>
+              (reconnecting)
+            </span>
+          )}
         </span>
       </div>
 

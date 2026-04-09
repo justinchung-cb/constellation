@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { CosmicSpinner } from "@/components/ui/CosmicSpinner";
 
 export default function Home() {
   const [GalaxyCanvas, setGalaxyCanvas] = useState<React.ComponentType | null>(null);
@@ -12,9 +13,7 @@ export default function Home() {
   }, []);
 
   if (!GalaxyCanvas) {
-    return (
-      <div style={{ width: "100vw", height: "100vh", background: "#0a0a1a" }} />
-    );
+    return <CosmicSpinner />;
   }
 
   return <GalaxyCanvas />;

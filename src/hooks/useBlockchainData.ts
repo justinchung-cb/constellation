@@ -32,6 +32,7 @@ export function useBlockchainData() {
     selectContract,
     selectTransaction,
     setLoading,
+    setError,
   } = useGalaxyStore();
   const fetchingRef = useRef(new Set<string>());
   const fetchTxHistoryRef = useRef<(address: string) => Promise<void>>(async () => {});
@@ -280,6 +281,7 @@ export function useBlockchainData() {
         await fetchTxHistoryRef.current(lower);
       } catch (err) {
         console.error("Failed to fetch wallet:", err);
+        setError("Failed to load wallet data. The RPC may be temporarily unavailable.");
         addWallet({
           address: lower,
           balance: BigInt(0),
@@ -292,7 +294,7 @@ export function useBlockchainData() {
         fetchingRef.current.delete(lower);
       }
     },
-    [publicClient, addWallet, selectWallet, selectContract, markAsContract, setLoading, fetchTokenBalances],
+    [publicClient, addWallet, selectWallet, selectContract, markAsContract, setLoading, setError, fetchTokenBalances],
   );
 
   const fetchTransaction = useCallback(
@@ -350,11 +352,12 @@ export function useBlockchainData() {
         selectTransaction(edge.hash);
       } catch (err) {
         console.error("Failed to fetch transaction:", err);
+        setError("Transaction not found or RPC request failed.");
       } finally {
         setLoading(false);
       }
     },
-    [publicClient, ensureWallet, markAsContract, addContractCreation, addTransactions, selectTransaction, setLoading],
+    [publicClient, ensureWallet, markAsContract, addContractCreation, addTransactions, selectTransaction, setLoading, setError],
   );
 
   return { fetchWallet, fetchTransaction };

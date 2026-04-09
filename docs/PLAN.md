@@ -592,12 +592,9 @@ Monospace (addresses, hashes): "JetBrains Mono"
 
 ### Phase 6: Final Polish -- DEMO PREP
 
-- Seed the galaxy with interesting wallets (whale wallets, well-known contracts)
 - Loading states (cosmic spinner)
 - Error handling (graceful failures)
-- Mobile responsive (at least not broken)
-- Record demo video
-- Test deployment on Vercel
+
 
 ## 10. Demo Script (3-4 Minutes)
 

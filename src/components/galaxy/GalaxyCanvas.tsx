@@ -13,6 +13,7 @@ import { InfoModal } from "@/components/ui/InfoModal";
 import { DetailPanel } from "@/components/ui/DetailPanel";
 import { StatusBar } from "@/components/ui/StatusBar";
 import { ActivityLog } from "@/components/ui/ActivityLog";
+import { ErrorToast } from "@/components/ui/ErrorToast";
 import { LiveBlocksWatcher } from "./LiveBlocksWatcher";
 import { StarRegistryLoader } from "./StarRegistryLoader";
 
@@ -267,6 +268,9 @@ export function GalaxyCanvas() {
 
       {/* Detail side panel */}
       {showUI && <DetailPanel />}
+
+      {/* Error toast */}
+      {showUI && <ErrorToast />}
     </GalaxyProvider>
   );
 }

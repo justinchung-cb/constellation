@@ -100,7 +100,10 @@ export function GalaxyProvider({ children }: { children: ReactNode }) {
   const [isLiveMode, setIsLiveMode] = useState(true);
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [lastError, setLastError] = useState<string | null>(null);
+  const [rpcHealthy, setIsRpcHealthy] = useState(true);
   const latestBlockRef = useRef<number | null>(initial?.latestBlock ?? null);
+  const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const persistRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
@@ -358,6 +361,17 @@ export function GalaxyProvider({ children }: { children: ReactNode }) {
     latestBlockRef.current = block;
   }, []);
 
+  const setError = useCallback((error: string) => {
+    setLastError(error);
+    if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
+    errorTimerRef.current = setTimeout(() => setLastError(null), 6000);
+  }, []);
+  const clearError = useCallback(() => {
+    setLastError(null);
+    if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
+  }, []);
+  const setRpcHealthy = useCallback((healthy: boolean) => setIsRpcHealthy(healthy), []);
+
   const resetAllData = useCallback(() => {
     setWallets(new Map());
     setTransactions([]);
@@ -382,6 +396,8 @@ export function GalaxyProvider({ children }: { children: ReactNode }) {
       isSoundEnabled,
       isLoading,
       latestBlock: latestBlockRef.current,
+      lastError,
+      rpcHealthy,
       selectWallet,
       selectContract,
       selectTransaction,
@@ -400,6 +416,9 @@ export function GalaxyProvider({ children }: { children: ReactNode }) {
       setLiveMode,
       setSoundEnabled,
       setLatestBlock,
+      setError,
+      clearError,
+      setRpcHealthy,
       resetAllData,
       triggerBlockPulse,
       blockPulseRef,
@@ -412,10 +431,10 @@ export function GalaxyProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       wallets, transactions, liveQueue, contractCreations, clustered, selectedEntity, cameraTarget,
-      isLiveMode, isSoundEnabled, isLoading, selectWallet, selectContract, selectTransaction,
+      isLiveMode, isSoundEnabled, isLoading, lastError, rpcHealthy, selectWallet, selectContract, selectTransaction,
       selectBlock, clearSelection, addWallet, removeWallet, ensureWallet, setWalletRegistration, markAsContract, addContractCreation, addTransactions,
       addLiveTransaction, promoteLiveTransaction, setLoading, setLiveMode, setSoundEnabled, setLatestBlock,
-      resetAllData, triggerBlockPulse, goBack, goForward, navVersion,
+      setError, clearError, setRpcHealthy, resetAllData, triggerBlockPulse, goBack, goForward, navVersion,
     ],
   );
 

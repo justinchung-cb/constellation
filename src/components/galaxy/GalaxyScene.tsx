@@ -20,7 +20,7 @@ import { StarDeath } from "./StarDeath";
 import { StarField } from "./StarField";
 
 const PLANET_GEO = (() => {
-  const geo = mergeVertices(new THREE.IcosahedronGeometry(1, 20));
+  const geo = mergeVertices(new THREE.IcosahedronGeometry(1, 4));
   geo.computeTangents();
   return geo;
 })();
@@ -31,7 +31,7 @@ const CROWN_GEO = new THREE.TorusGeometry(1, 0.035, 8, 48);
 
 const FLASH_DURATION = 1.8;
 const BIRTH_DURATION = 1.0;
-const ORBIT_PARTICLE_COUNT = 30;
+const ORBIT_PARTICLE_COUNT = 16;
 
 const PARTICLE_ORBIT_VERT = /* glsl */ `
   uniform float uTime;
@@ -281,7 +281,6 @@ const PulsingStar = memo(function PulsingStar({
   const groupRef = useRef<THREE.Group>(null);
   const starRef = useRef<Mesh>(null);
   const crownRef = useRef<Mesh>(null);
-  const starLightRef = useRef<THREE.PointLight>(null);
   const hoveredRef = useRef(0);
   const hoverTargetRef = useRef(0);
 
@@ -447,10 +446,6 @@ const PulsingStar = memo(function PulsingStar({
     starRef.current.scale.setScalar(coreScale);
 
     const dimFactor = isConnected ? 0.7 : 1;
-
-    if (starLightRef.current) {
-      starLightRef.current.intensity = brightness * size * 3.0 * pulse * dimFactor;
-    }
     const hoverBrightness = hoveredRef.current * 0.5;
     const selectMul = isSelected ? 1.8 : 1.0;
     uniforms.uTime.value = now;
@@ -494,15 +489,6 @@ const PulsingStar = memo(function PulsingStar({
           toneMapped={false}
         />
       </mesh>
-
-      {/* Emissive point light radiating from inside the star */}
-      <pointLight
-        ref={starLightRef}
-        color={palette.aura}
-        intensity={brightness * size * 3.0}
-        distance={10}
-        decay={2}
-      />
 
       {/* Orbiting particles */}
       <points ref={particleRef} geometry={particleGeo} scale={size * 0.6} raycast={() => {}}>
@@ -887,11 +873,11 @@ export function GalaxyScene({ introPhase = "ready" }: { introPhase?: "intro" | "
 
       <EffectComposer multisampling={0}>
         <Bloom
-          intensity={1.8}
-          luminanceThreshold={0.4}
+          intensity={1.6}
+          luminanceThreshold={0.55}
           luminanceSmoothing={0.9}
           mipmapBlur
-          levels={6}
+          levels={4}
         />
         <Vignette offset={0.5} darkness={0.5} />
       </EffectComposer>

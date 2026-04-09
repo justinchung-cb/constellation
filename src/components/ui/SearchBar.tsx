@@ -54,17 +54,28 @@ export function SearchBar() {
     saveRecent([]);
   }, []);
 
+  const [validationHint, setValidationHint] = useState<string | null>(null);
+
   const submitQuery = useCallback(
     (value: string) => {
       const trimmed = value.trim();
       if (!trimmed) return;
 
       if (ADDRESS_RE.test(trimmed)) {
+        setValidationHint(null);
         addRecent({ query: trimmed, type: "address" });
         fetchWallet(trimmed);
       } else if (TX_HASH_RE.test(trimmed)) {
+        setValidationHint(null);
         addRecent({ query: trimmed, type: "tx" });
         fetchTransaction(trimmed);
+      } else {
+        setValidationHint(
+          trimmed.startsWith("0x")
+            ? "Invalid format — addresses are 42 chars, tx hashes are 66 chars."
+            : "Enter a valid 0x address or transaction hash.",
+        );
+        return;
       }
       setQuery("");
       setShowRecent(false);
@@ -122,7 +133,7 @@ export function SearchBar() {
             type="text"
             placeholder="Search address or tx hash (0x...)"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => { setQuery(e.target.value); setValidationHint(null); }}
             onFocus={() => setShowRecent(true)}
             className="flex-1 bg-transparent text-sm text-white placeholder:text-secondary outline-none font-mono"
             spellCheck={false}
@@ -133,6 +144,20 @@ export function SearchBar() {
           )}
         </div>
       </form>
+
+      {/* Inline validation hint */}
+      {validationHint && (
+        <div
+          className="mt-1.5 px-4 py-2 rounded-xl text-xs"
+          style={{
+            background: "rgba(255, 170, 50, 0.08)",
+            border: "1px solid rgba(255, 170, 50, 0.15)",
+            color: "#FFAA44",
+          }}
+        >
+          {validationHint}
+        </div>
+      )}
 
       {showRecent && visibleRecent.length > 0 && (
         <div

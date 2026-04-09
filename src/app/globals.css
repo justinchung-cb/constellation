@@ -22,6 +22,14 @@ body {
   color: #ffffff;
 }
 
+button,
+[role="button"],
+[type="submit"],
+summary,
+a[href] {
+  cursor: pointer;
+}
+
 @keyframes slideIn {
   from {
     opacity: 0;
