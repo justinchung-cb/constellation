@@ -1,5 +1,5 @@
 export const STAR_REGISTRY_ADDRESS =
-  "so " as const;
+  "0x0000000000000000000000000000000000000000" as const;
 
 export const STAR_REGISTRY_ABI = [
   {
