@@ -266,8 +266,16 @@ export function GalaxyProvider({ children }: { children: ReactNode }) {
     const lower = address.toLowerCase();
     setWallets((prev) => {
       if (prev.has(lower)) return prev;
-      if (prev.size >= MAX_WALLETS) return prev;
       const next = new Map(prev);
+      if (next.size >= MAX_WALLETS) {
+        // Evict the oldest non-selected wallet to make room
+        for (const key of next.keys()) {
+          if (key !== selectedEntity?.id) {
+            next.delete(key);
+            break;
+          }
+        }
+      }
       next.set(lower, {
         address: lower,
         balance: BigInt(0),
@@ -276,7 +284,7 @@ export function GalaxyProvider({ children }: { children: ReactNode }) {
       });
       return next;
     });
-  }, []);
+  }, [selectedEntity?.id]);
 
   const setWalletRegistration = useCallback((address: string, registration: StarRegistration) => {
     const lower = address.toLowerCase();

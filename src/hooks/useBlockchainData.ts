@@ -7,7 +7,6 @@ import { walletToPosition } from "@/lib/galaxy-math";
 import { useGalaxyStore } from "./useGalaxyStore";
 
 const ETHERSCAN_V2_API = "https://api.etherscan.io/v2/api";
-const BASE_SEPOLIA_CHAIN_ID = 84532;
 const ETHERSCAN_API_KEY = process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY || "";
 
 const ERC20_BALANCE_ABI = [
@@ -22,6 +21,7 @@ const ERC20_BALANCE_ABI = [
 
 export function useBlockchainData() {
   const publicClient = usePublicClient();
+  const chainId = publicClient?.chain?.id ?? 1;
   const {
     addWallet,
     ensureWallet,
@@ -104,7 +104,7 @@ export function useBlockchainData() {
       const lower = address.toLowerCase();
 
       try {
-        const url = `${ETHERSCAN_V2_API}?chainid=${BASE_SEPOLIA_CHAIN_ID}&module=account&action=txlist&address=${lower}&startblock=0&endblock=99999999&page=1&offset=50&sort=desc&apikey=${ETHERSCAN_API_KEY}`;
+        const url = `${ETHERSCAN_V2_API}?chainid=${chainId}&module=account&action=txlist&address=${lower}&startblock=0&endblock=99999999&page=1&offset=50&sort=desc&apikey=${ETHERSCAN_API_KEY}`;
         const res = await fetch(url);
         const data = await res.json();
 
@@ -178,7 +178,7 @@ export function useBlockchainData() {
         await fetchLatestBlockTxs(lower);
       }
     },
-    [publicClient, ensureWallet, markAsContract, addContractCreation, addTransactions, fetchLatestBlockTxs],
+    [publicClient, chainId, ensureWallet, markAsContract, addContractCreation, addTransactions, fetchLatestBlockTxs],
   );
   fetchTxHistoryRef.current = fetchTxHistory;
 
@@ -186,7 +186,7 @@ export function useBlockchainData() {
     async (address: string): Promise<TokenBalance[]> => {
       const lower = address.toLowerCase();
       try {
-        const url = `${ETHERSCAN_V2_API}?chainid=${BASE_SEPOLIA_CHAIN_ID}&module=account&action=tokentx&address=${lower}&page=1&offset=100&sort=desc&apikey=${ETHERSCAN_API_KEY}`;
+        const url = `${ETHERSCAN_V2_API}?chainid=${chainId}&module=account&action=tokentx&address=${lower}&page=1&offset=100&sort=desc&apikey=${ETHERSCAN_API_KEY}`;
         const res = await fetch(url);
         const data = await res.json();
 
@@ -239,7 +239,7 @@ export function useBlockchainData() {
         return [];
       }
     },
-    [publicClient],
+    [publicClient, chainId],
   );
 
   const fetchWallet = useCallback(

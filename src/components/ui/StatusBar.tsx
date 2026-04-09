@@ -1,16 +1,22 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
-import { useBlockNumber } from "wagmi";
+import { useEffect, useMemo, useState } from "react";
+import { useBlockNumber, useChainId, useSwitchChain } from "wagmi";
 import { useGalaxyStore } from "@/hooks/useGalaxyStore";
 import { formatNumber } from "@/lib/utils";
+import { SUPPORTED_CHAINS } from "@/lib/chains";
 
 const SEED_COUNT = 15;
 
 export function StatusBar() {
   const { latestBlock, setLatestBlock, wallets, transactions, contractCreations, isLiveMode, setLiveMode, isSoundEnabled, setSoundEnabled, rpcHealthy, resetAllData } =
     useGalaxyStore();
-  const { data: blockNumber } = useBlockNumber({ watch: true });
+  const chainId = useChainId();
+  const { data: blockNumber } = useBlockNumber({ watch: true, chainId });
+  const { switchChain } = useSwitchChain();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const activeChain = SUPPORTED_CHAINS.find((c) => c.id === chainId) ?? SUPPORTED_CHAINS[0];
 
   const contractWalletCount = useMemo(
     () => Array.from(wallets.values()).filter((w) => w.isContract).length,
@@ -41,7 +47,7 @@ export function StatusBar() {
             {latestBlock ? `#${formatNumber(latestBlock)}` : "—"}
           </span>
         </span>
-        <span className="text-secondary flex items-center gap-1.5">
+        <div className="relative flex items-center gap-1.5">
           <span
             className="inline-block h-1.5 w-1.5 rounded-full"
             style={{
@@ -49,14 +55,52 @@ export function StatusBar() {
               boxShadow: rpcHealthy ? "0 0 4px #00FFAA" : "0 0 4px #FF6666",
             }}
           />
-          Network:{" "}
-          <span className="text-white">Base Sepolia</span>
+          <button
+            onClick={() => setDropdownOpen((v) => !v)}
+            className="text-secondary flex items-center gap-1 hover:text-white transition-colors"
+          >
+            Network:{" "}
+            <span className="text-white">{activeChain.name}</span>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
           {!rpcHealthy && (
             <span style={{ color: "#FF6666", fontSize: "10px" }}>
               (reconnecting)
             </span>
           )}
-        </span>
+          {dropdownOpen && (
+            <div
+              className="absolute bottom-8 left-0 rounded-lg py-1 z-50"
+              style={{
+                background: "rgba(10, 10, 30, 0.95)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                boxShadow: "0 4px 16px rgba(0, 0, 0, 0.5)",
+              }}
+            >
+              {SUPPORTED_CHAINS.map((chain) => (
+                <button
+                  key={chain.id}
+                  onClick={() => {
+                    if (chain.id !== chainId) {
+                      switchChain({ chainId: chain.id });
+                      resetAllData();
+                    }
+                    setDropdownOpen(false);
+                  }}
+                  className="w-full px-4 py-1.5 text-left text-xs hover:bg-white/5 transition-colors whitespace-nowrap flex items-center gap-2"
+                  style={{ color: chain.id === chainId ? "#ffffff" : "#888899" }}
+                >
+                  {chain.id === chainId && (
+                    <span className="h-1.5 w-1.5 rounded-full bg-white inline-block" />
+                  )}
+                  {chain.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="flex items-center gap-4">
