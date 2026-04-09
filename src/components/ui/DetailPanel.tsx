@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGalaxyStore } from "@/hooks/useGalaxyStore";
 import { WalletDetail } from "./WalletDetail";
@@ -16,6 +17,7 @@ const TYPE_LABELS = {
 
 export function DetailPanel() {
   const { selectedEntity, clearSelection } = useGalaxyStore();
+  const [showFocusTip, setShowFocusTip] = useState(false);
 
   return (
     <AnimatePresence>
@@ -38,15 +40,55 @@ export function DetailPanel() {
             <h2 className="text-sm font-medium text-secondary uppercase tracking-wider">
               {TYPE_LABELS[selectedEntity.type]}
             </h2>
-            <button
-              onClick={clearSelection}
-              className="text-secondary hover:text-white transition-colors p-1"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
+            <div className="flex items-center gap-2">
+              {selectedEntity.type === "wallet" && (
+                <div className="relative flex items-center gap-1.5">
+                  <span className="text-[11px] text-secondary uppercase tracking-wider">
+                    Focus Mode
+                  </span>
+                  <div
+                    className="relative"
+                    onMouseEnter={() => setShowFocusTip(true)}
+                    onMouseLeave={() => setShowFocusTip(false)}
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className="text-secondary cursor-help"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="16" x2="12" y2="12" />
+                      <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                    {showFocusTip && (
+                      <div
+                        className="absolute right-0 top-6 w-52 px-3 py-2 rounded-lg text-[11px] text-white/80 leading-relaxed pointer-events-none z-50"
+                        style={{
+                          background: "rgba(10, 10, 30, 0.95)",
+                          border: "1px solid rgba(255, 255, 255, 0.1)",
+                          boxShadow: "0 4px 16px rgba(0, 0, 0, 0.5)",
+                        }}
+                      >
+                        Only this wallet and wallets it has transacted with are shown. Click away to exit.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              <button
+                onClick={clearSelection}
+                className="text-secondary hover:text-white transition-colors p-1"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div className="p-4">
